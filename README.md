@@ -1,2 +1,2 @@
 # test_cafe
-Project for cafe reservation
+Django project for cafe reservation
