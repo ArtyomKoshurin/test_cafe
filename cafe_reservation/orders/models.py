@@ -22,7 +22,7 @@ class Dish(models.Model):
 
 class Order(models.Model):
     """Модель заказа."""
-    table_number = models.IntegerField()
+    table_number = models.PositiveIntegerField()
     items = models.ManyToManyField(
         Dish,
         through='DishesForOrder',

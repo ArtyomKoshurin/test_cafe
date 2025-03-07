@@ -1,0 +1,137 @@
+from rest_framework import serializers
+
+from orders.models import Dish, Order, DishesForOrder
+from orders.constants import ORDER_STATUSES
+
+
+class DishSerialzier(serializers.Serializer):
+    """Сериализатор для отображения информации о блюдах."""
+    name = serializers.CharField(max_length=64)
+    price = serializers.IntegerField()
+
+
+class OrderCreateSerializer(serializers.ModelSerializer):
+    """Сериализатор для создания заказов."""
+    table_number = serializers.IntegerField()
+    items = DishSerialzier(many=True)
+    total_price = serializers.IntegerField(read_only=True)
+    status = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = Order
+        fields = ("id", "table_number", "items", "total_price", "status")
+
+    def validate_table_number(self, value):
+        if value < 1 or value > 30:
+            raise serializers.ValidationError(
+                "Стола с таким номером не существует."
+            )
+
+        return value
+
+    def validate(self, data):
+        items = data.get('items')
+        if not items:
+            raise serializers.ValidationError(
+                "Необходимо добавить блюда в заказ."
+            )
+        for dish in items:
+            name = dish.get("name")
+            price = dish.get("price")
+            if not Dish.objects.filter(name=name, price=price).exists():
+                raise serializers.ValidationError(
+                    f"Блюда {name} с ценой {price} у нас в продаже нет."
+                )
+
+        return data
+
+    def create(self, validated_data):
+        items = validated_data.pop("items")
+        total_price = 0
+        for dish in items:
+            total_price += dish.get("price")
+
+        order = Order.objects.create(
+            table_number=validated_data.get("table_number"),
+            total_price=total_price,
+            status=ORDER_STATUSES[0][1]
+        )
+
+        for dish in items:
+            dish = Dish.objects.get(
+                name=dish.get("name"),
+                price=dish.get("price")
+            )
+            DishesForOrder.objects.create(
+                dish=dish,
+                order=order
+            )
+
+        return order
+
+
+class OrderUpdateSerializer(serializers.ModelSerializer):
+    """Сериализатор для обновления заказов."""
+    table_number = serializers.IntegerField(required=False)
+    items = DishSerialzier(many=True, required=False)
+    total_price = serializers.IntegerField(read_only=True)
+    status = serializers.CharField(required=False)
+
+    class Meta:
+        model = Order
+        fields = ("id", "table_number", "items", "total_price", "status")
+
+    def validate(self, data):
+        items = data.get('items')
+        status = data.get("status")
+        if not items:
+            raise serializers.ValidationError(
+                "Необходимо добавить блюда в заказ."
+                )
+        for dish in items:
+            name = dish.get("name")
+            price = dish.get("price")
+            if not Dish.objects.filter(name=name, price=price).exists():
+                raise serializers.ValidationError(
+                    f"Блюда {name} с ценой {price} у нас в продаже нет."
+                )
+        if status and status not in ["Waiting", "Ready", "Paid"]:
+            raise serializers.ValidationError("Неверный статус заказа.")
+        return data
+
+    def update(self, instance, validated_data):
+        table_number = validated_data.get(
+            "table_number",
+            instance.table_number
+        )
+        status = validated_data.get(
+            "status",
+            instance.status
+        )
+        items = validated_data.pop("items")
+        total_price = 0
+        for dish in items:
+            total_price += dish.get("price")
+
+        instance.items.clear()
+        for dish in items:
+            dish = Dish.objects.get(
+                name=dish.get("name"),
+                price=dish.get("price")
+            )
+            DishesForOrder.objects.create(dish=dish, order=instance)
+
+        instance.table_number = table_number
+        instance.total_price = total_price
+        instance.status = status
+        instance.save()
+
+        return instance
+
+
+class OrderGetSerialzier(serializers.ModelSerializer):
+    items = DishSerialzier(many=True, read_only=True)
+
+    class Meta:
+        model = Order
+        fields = ("id", "table_number", "items", "total_price", "status")

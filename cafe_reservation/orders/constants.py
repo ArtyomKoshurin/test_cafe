@@ -1,5 +1,5 @@
 ORDER_STATUSES = [
-    ("waiting", "Waiting"),
-    ("ready", "Ready"),
-    ("paid", "Paid"),
+    ("Waiting", "Waiting"),
+    ("Ready", "Ready"),
+    ("Paid", "Paid"),
 ]
