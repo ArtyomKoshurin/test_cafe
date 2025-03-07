@@ -47,7 +47,7 @@ class OrderCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         items = validated_data.pop("items")
-        total_price = sum(dish["price"] for dish in items)
+        total_price = sum(dish.get("price") for dish in items)
 
         order = Order.objects.create(
             table_number=validated_data.get("table_number"),
@@ -106,7 +106,7 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
 
         if "items" in validated_data:
             items = validated_data.pop("items")
-            total_price = sum(dish["price"] for dish in items)
+            total_price = sum(dish.get("price") for dish in items)
 
             instance.items.clear()
             for dish in items:

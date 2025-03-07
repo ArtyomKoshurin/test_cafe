@@ -1,6 +1,9 @@
 from rest_framework import viewsets, filters
+from rest_framework.views import APIView
 from rest_framework.exceptions import NotFound
+from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Sum
 
 from orders.models import Order
 from orders. serializers import (
@@ -33,3 +36,19 @@ class OrderViewSet(viewsets.ModelViewSet):
                 detail=f"Заказа с id {self.kwargs['pk']} не существует"
             )
         return order
+
+
+class EarningForDay(APIView):
+    """Вью класс для подсчета общей выручки."""
+    def get(self, request):
+        # В ТЗ об этом не было сказано, но я бы добавил возможность выставлять
+        # дату создания заказа, чтобы считать не общую выручку со всех заказов
+        # (как в реализации ниже), а за конкретный день (datetime.now().date())
+        total_earning = Order.objects.aggregate(
+            total_earning=Sum("total_price")
+        ).get("total_earning")
+
+        if not total_earning:
+            total_earning = 0
+
+        return Response(f"Общая выручка за смену: {total_earning} руб.")
