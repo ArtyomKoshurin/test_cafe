@@ -7,7 +7,8 @@ from orders.views import (
     OrderListView,
     OrderDetailView,
     OrderDeleteView,
-    EarningsDetailView
+    EarningsDetailView,
+    EditOrderItemsView
 )
 
 
@@ -15,18 +16,23 @@ app_name = "orders"
 
 urlpatterns = [
     path('create-order/', OrderCreateView.as_view(), name='create_order'),
-    path('orders/', OrderListView.as_view(), name='orders_list'),
+    path('', OrderListView.as_view(), name='orders_list'),
     path(
-        'orders/<int:order_id>/',
+        '<int:order_id>/',
         OrderDetailView.as_view(),
         name='order_detail'
     ),
     path(
-        'orders/<int:order_id>/delete/',
+        '<int:order_id>/delete/',
         OrderDeleteView.as_view(),
         name='order_delete'
     ),
     path('earnings/', EarningsDetailView.as_view(), name='earnings_detail'),
+    path(
+        '<int:order_id>/edit-items/',
+        EditOrderItemsView.as_view(),
+        name='edit_order_items'
+    )
 ]
 
 if settings.DEBUG:

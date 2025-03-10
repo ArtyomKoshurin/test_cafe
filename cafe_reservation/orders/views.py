@@ -1,12 +1,19 @@
 import requests
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 
-from orders.forms import OrderCreateForm, OrderStatusForm
+from orders.forms import (
+    OrderCreateForm,
+    OrderStatusForm,
+    OrderItemsForm,
+)
+from api.models import Order
 
 
 class OrderListView(View):
+    """Вью для отображения списка всех заказов с обращением к api сайта."""
+
     template_name = "orders_list.html"
 
     def get(self, request):
@@ -41,9 +48,14 @@ class OrderListView(View):
 
 
 class OrderDetailView(View):
+    """Вью для отображения информации
+    о конкретном заказе и редактирования блюд."""
+
     template_name = "order_detail.html"
 
     def get(self, request, order_id):
+        """Получение заказа."""
+
         response = requests.get(
             f"http://127.0.0.1:8000/api/orders/{order_id}/"
         )
@@ -52,28 +64,52 @@ class OrderDetailView(View):
         else:
             order = None
 
-        form = OrderStatusForm(
+        status_form = OrderStatusForm(
             initial={"status": order["status"]}
         ) if order else None
+        items_form = OrderItemsForm(
+            initial={"items": [dish["name"] for dish in order["items"]]}
+        ) if order else None
+
         return render(
             request,
             self.template_name,
-            {"order": order, "form": form}
+            {
+              "order": order,
+              "status_form": status_form,
+              "items_form": items_form
+            }
         )
 
     def post(self, request, order_id):
-        form = OrderStatusForm(request.POST)
-        if form.is_valid():
-            new_status = form.cleaned_data["status"]
+        """Обновление статуса заказа и состава блюд."""
+        status_form = OrderStatusForm(request.POST)
+        items_form = OrderItemsForm(request.POST)
+
+        if "status" in request.POST and status_form.is_valid():
+            new_status = status_form.cleaned_data["status"]
             requests.patch(
                 f"http://127.0.0.1:8000/api/orders/{order_id}/",
                 json={"status": new_status},
                 headers={"Content-Type": "application/json"}
             )
+
+        if "items" in request.POST and items_form.is_valid():
+            new_items = list(
+                items_form.cleaned_data["items"].values_list("id", flat=True)
+            )
+            requests.patch(
+                f"http://127.0.0.1:8000/api/orders/{order_id}/",
+                json={"items": new_items},
+                headers={"Content-Type": "application/json"}
+            )
+
         return redirect("orders:order_detail", order_id=order_id)
 
 
 class OrderCreateView(View):
+    """Вью для создания заказа."""
+
     template_name = "order_create.html"
 
     def get(self, request):
@@ -101,12 +137,41 @@ class OrderCreateView(View):
 
 
 class OrderDeleteView(View):
+    """Вью для удаления заказа."""
+
     def post(self, request, order_id):
         requests.delete(f"http://127.0.0.1:8000/api/orders/{order_id}/")
         return redirect("orders:orders_list")
 
 
+class EditOrderItemsView(View):
+    template_name = "edit_order_items.html"
+
+    def get(self, request, order_id):
+        order = get_object_or_404(Order, id=order_id)
+        form = OrderItemsForm(instance=order)
+        return render(
+            request,
+            self.template_name,
+            {"form": form, "order": order}
+        )
+
+    def post(self, request, order_id):
+        order = get_object_or_404(Order, id=order_id)
+        form = OrderItemsForm(request.POST, instance=order)
+        if form.is_valid():
+            form.save()
+            return redirect("orders:order_detail", order_id=order.id)
+        return render(
+            request,
+            self.template_name,
+            {"form": form, "order": order}
+        )
+
+
 class EarningsDetailView(View):
+    """Вью для подсчета выручки заказов со статусом 'оплачено'."""
+
     template_name = "earnings.html"
 
     def get(self, request):

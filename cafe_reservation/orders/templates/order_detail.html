@@ -15,11 +15,15 @@
         <li>{{ dish.name }} - {{ dish.price }} руб.</li>
         {% endfor %}
     </ul>
+
+    <a href="{% url 'orders:edit_order_items' order.id %}">
+        <button type="submit" class="btn btn-success">Изменить состав блюд</button>
+    </a>
     
     <h4>Изменить статус заказа</h4>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ status_form.as_p }}
         <button type="submit" class="btn btn-success">Сохранить</button>
     </form>
     
