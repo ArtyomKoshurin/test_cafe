@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from api.views import OrderViewSet, EarningForDay
 
+
 app_name = "api"
 
 router_orders = DefaultRouter()

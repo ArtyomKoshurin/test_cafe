@@ -6,6 +6,18 @@ from django.views import View
 from orders.forms import OrderForm
 
 
+class OrderListView(View):
+    template_name = "orders_list.html"
+
+    def get(self, request):
+        response = requests.get("http://127.0.0.1:8000/api/orders/")
+        if response.status_code == 200:
+            orders = response.json()
+        else:
+            orders = []
+        return render(request, self.template_name, {"orders": orders})
+
+
 class OrderCreateView(View):
     template_name = "order_create.html"
 
@@ -28,6 +40,6 @@ class OrderCreateView(View):
             )
 
             if response.status_code == 201:
-                return redirect("success_page")
+                return redirect("orders:orders_list")
 
         return render(request, self.template_name, {"form": form})

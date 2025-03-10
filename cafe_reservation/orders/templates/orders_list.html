@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Список заказов{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Список заказов</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Номер стола</th>
+                <th>Блюда</th>
+                <th>Общая стоимость</th>
+                <th>Статус</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.table_number }}</td>
+                <td>
+                    <ul>
+                        {% for dish in order.items %}
+                        <li>{{ dish.name }} - {{ dish.price }} руб.</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+                <td>{{ order.total_price }} руб.</td>
+                <td>{{ order.status }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">Заказов пока нет</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
