@@ -3,7 +3,7 @@ import requests
 from django.shortcuts import render, redirect
 from django.views import View
 
-from orders.forms import OrderForm
+from orders.forms import OrderForm, OrderStatusForm
 
 
 class OrderListView(View):
@@ -16,6 +16,39 @@ class OrderListView(View):
         else:
             orders = []
         return render(request, self.template_name, {"orders": orders})
+
+
+class OrderDetailView(View):
+    template_name = "order_detail.html"
+
+    def get(self, request, order_id):
+        response = requests.get(
+            f"http://127.0.0.1:8000/api/orders/{order_id}/"
+        )
+        if response.status_code == 200:
+            order = response.json()
+        else:
+            order = None
+
+        form = OrderStatusForm(
+            initial={"status": order["status"]}
+        ) if order else None
+        return render(
+            request,
+            self.template_name,
+            {"order": order, "form": form}
+        )
+
+    def post(self, request, order_id):
+        form = OrderStatusForm(request.POST)
+        if form.is_valid():
+            new_status = form.cleaned_data["status"]
+            requests.patch(
+                f"http://127.0.0.1:8000/api/orders/{order_id}/",
+                json={"status": new_status},
+                headers={"Content-Type": "application/json"}
+            )
+        return redirect("orders:order_detail", order_id=order_id)
 
 
 class OrderCreateView(View):
