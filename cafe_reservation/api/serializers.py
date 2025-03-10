@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from orders.models import Dish, Order, DishesForOrder
-from orders.constants import ORDER_STATUSES
+from api.models import Dish, Order, DishesForOrder
+from api.constants import ORDER_STATUSES
 
 
 class DishSerialzier(serializers.Serializer):

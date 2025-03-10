@@ -18,13 +18,14 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", default='*').split()
 
 
 INSTALLED_APPS = [
-    'orders.apps.OrdersConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'orders.apps.OrdersConfig',
+    'api.apps.ApiConfig',
     'rest_framework',
     'django_filters',
 ]

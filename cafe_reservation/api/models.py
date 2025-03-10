@@ -1,6 +1,6 @@
 from django.db import models
 
-from orders.constants import ORDER_STATUSES
+from api.constants import ORDER_STATUSES
 
 
 class Dish(models.Model):
