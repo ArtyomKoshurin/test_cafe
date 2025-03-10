@@ -40,6 +40,7 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 class EarningForDay(APIView):
     """Вью класс для подсчета общей выручки."""
+
     def get(self, request):
         # В ТЗ об этом не было сказано, но я бы добавил возможность выставлять
         # дату создания заказа, чтобы считать не общую выручку со всех заказов

@@ -3,7 +3,7 @@ import csv
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from orders.models import Dish
+from api.models import Dish
 
 
 DATA = {Dish: 'test_dishes.csv'}

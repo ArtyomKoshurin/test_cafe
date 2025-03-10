@@ -6,12 +6,14 @@ from api.constants import ORDER_STATUSES
 
 class DishSerialzier(serializers.Serializer):
     """Сериализатор для отображения информации о блюдах."""
+
     name = serializers.CharField(max_length=64)
     price = serializers.IntegerField()
 
 
 class OrderCreateSerializer(serializers.ModelSerializer):
     """Сериализатор для создания заказов."""
+
     table_number = serializers.IntegerField()
     items = DishSerialzier(many=True)
     total_price = serializers.IntegerField(read_only=True)
@@ -70,6 +72,7 @@ class OrderCreateSerializer(serializers.ModelSerializer):
 
 class OrderUpdateSerializer(serializers.ModelSerializer):
     """Сериализатор для обновления заказов."""
+
     table_number = serializers.IntegerField(required=False)
     items = DishSerialzier(many=True, required=False)
     total_price = serializers.IntegerField(read_only=True)
@@ -125,6 +128,8 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
 
 
 class OrderGetSerialzier(serializers.ModelSerializer):
+    """Сериализатор для получения информации о заказе."""
+
     items = DishSerialzier(many=True, read_only=True)
 
     class Meta:
