@@ -28,7 +28,7 @@ class Order(models.Model):
         through='DishesForOrder',
         related_name='order_items'
     )
-    total_price = models.IntegerField()
+    total_price = models.IntegerField(default=0)
     status = models.CharField(
         max_length=16,
         choices=ORDER_STATUSES,
