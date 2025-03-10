@@ -6,7 +6,8 @@ from orders.views import (
     OrderCreateView,
     OrderListView,
     OrderDetailView,
-    OrderDeleteView
+    OrderDeleteView,
+    EarningsDetailView
 )
 
 
@@ -25,6 +26,7 @@ urlpatterns = [
         OrderDeleteView.as_view(),
         name='order_delete'
     ),
+    path('earnings/', EarningsDetailView.as_view(), name='earnings_detail'),
 ]
 
 if settings.DEBUG:

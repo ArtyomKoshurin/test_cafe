@@ -12,6 +12,7 @@ class OrderListView(View):
     def get(self, request):
         table_number = request.GET.get("table_number", "").strip()
         status = request.GET.get("status", "").strip()
+        calculate_earnings = "calculate_earnings" in request.GET
 
         params = {}
         if table_number:
@@ -24,8 +25,19 @@ class OrderListView(View):
             params=params
         )
         orders = response.json() if response.status_code == 200 else []
+        earnings = None
+        if calculate_earnings:
+            earnings_response = requests.get(
+                "http://127.0.0.1:8000/api/earnings/"
+            )
+            if earnings_response.status_code == 200:
+                earnings = earnings_response.text
 
-        return render(request, self.template_name, {"orders": orders})
+        return render(
+            request,
+            self.template_name,
+            {"orders": orders, "earnings": earnings}
+        )
 
 
 class OrderDetailView(View):
@@ -92,3 +104,13 @@ class OrderDeleteView(View):
     def post(self, request, order_id):
         requests.delete(f"http://127.0.0.1:8000/api/orders/{order_id}/")
         return redirect("orders:orders_list")
+
+
+class EarningsDetailView(View):
+    template_name = "earnings.html"
+
+    def get(self, request):
+        response = requests.get("http://127.0.0.1:8000/api/earnings/")
+        earnings = response.text if response.status_code == 200 else "Ошибка получения данных"
+
+        return render(request, self.template_name, {"earnings": earnings})

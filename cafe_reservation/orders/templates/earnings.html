@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block title %}Подсчет выручки{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <p class="fs-4">{{ earnings }}</p>
+    <a href="{% url 'orders:orders_list' %}" class="btn btn-secondary mt-3">Назад к списку заказов</a>
+</div>
+{% endblock %}

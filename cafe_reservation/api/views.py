@@ -11,6 +11,7 @@ from api. serializers import (
     OrderGetSerialzier,
     OrderUpdateSerializer
 )
+from api.constants import ORDER_STATUSES
 
 
 class OrderViewSet(viewsets.ModelViewSet):
@@ -45,9 +46,9 @@ class EarningForDay(APIView):
         # В ТЗ об этом не было сказано, но я бы добавил возможность выставлять
         # дату создания заказа, чтобы считать не общую выручку со всех заказов
         # (как в реализации ниже), а за конкретный день (datetime.now().date())
-        total_earning = Order.objects.aggregate(
-            total_earning=Sum("total_price")
-        ).get("total_earning")
+        total_earning = Order.objects.filter(
+            status=ORDER_STATUSES[2][1]
+        ).aggregate(total_earning=Sum("total_price")).get("total_earning")
 
         if not total_earning:
             total_earning = 0
