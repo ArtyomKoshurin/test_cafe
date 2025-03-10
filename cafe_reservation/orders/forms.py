@@ -4,7 +4,7 @@ from api.models import Dish, Order
 from api.constants import ORDER_STATUSES
 
 
-class OrderForm(forms.Form):
+class OrderCreateForm(forms.Form):
     table_number = forms.IntegerField(
         min_value=1,
         max_value=30,
@@ -15,6 +15,10 @@ class OrderForm(forms.Form):
         widget=forms.CheckboxSelectMultiple,
         label="Выберите блюда"
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['items'].label_from_instance = lambda dish: f"{dish.name}: {dish.price} руб."
 
 
 class OrderStatusForm(forms.ModelForm):

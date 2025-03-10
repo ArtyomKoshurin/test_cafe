@@ -3,18 +3,28 @@ import requests
 from django.shortcuts import render, redirect
 from django.views import View
 
-from orders.forms import OrderForm, OrderStatusForm
+from orders.forms import OrderCreateForm, OrderStatusForm
 
 
 class OrderListView(View):
     template_name = "orders_list.html"
 
     def get(self, request):
-        response = requests.get("http://127.0.0.1:8000/api/orders/")
-        if response.status_code == 200:
-            orders = response.json()
-        else:
-            orders = []
+        table_number = request.GET.get("table_number", "").strip()
+        status = request.GET.get("status", "").strip()
+
+        params = {}
+        if table_number:
+            params["table_number"] = int(table_number)
+        if status:
+            params["status"] = status
+
+        response = requests.get(
+            "http://127.0.0.1:8000/api/orders/",
+            params=params
+        )
+        orders = response.json() if response.status_code == 200 else []
+
         return render(request, self.template_name, {"orders": orders})
 
 
@@ -55,11 +65,11 @@ class OrderCreateView(View):
     template_name = "order_create.html"
 
     def get(self, request):
-        form = OrderForm()
+        form = OrderCreateForm()
         return render(request, self.template_name, {"form": form})
 
     def post(self, request):
-        form = OrderForm(request.POST)
+        form = OrderCreateForm(request.POST)
         if form.is_valid():
             table_number = form.cleaned_data["table_number"]
             items = form.cleaned_data["items"]

@@ -17,8 +17,8 @@ class OrderViewSet(viewsets.ModelViewSet):
     """Вьюсет для создания и просмотра заказа"""
     queryset = Order.objects.all()
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    search_fields = ("table_number", "status")
-    filterset_fields = ("status", )
+    search_fields = ("status")
+    filterset_fields = ("status", "table_number")
 
     def get_serializer_class(self):
         if self.action in ["list", "retrieve"]:

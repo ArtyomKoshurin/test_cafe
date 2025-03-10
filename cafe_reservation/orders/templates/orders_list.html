@@ -8,6 +8,18 @@
         <h2>Список заказов</h2>
         <a href="{% url 'orders:create_order' %}" class="btn btn-primary">Создать заказ</a>
     </div>
+    
+    <form method="get" class="mb-3 d-flex gap-2">
+        <input type="text" name="table_number" class="form-control" placeholder="Номер стола" value="{{ request.GET.table_number }}">
+        <select name="status" class="form-select">
+            <option value="" selected>Все статусы</option>
+            <option value="Waiting" {% if request.GET.status == "Waiting" %}selected{% endif %}>В ожидании</option>
+            <option value="Ready" {% if request.GET.status == "Ready" %}selected{% endif %}>Готово</option>
+            <option value="Paid" {% if request.GET.status == "Paid" %}selected{% endif %}>Оплачено</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Поиск</button>
+    </form>
+    
     <table class="table table-striped">
         <thead>
             <tr>
