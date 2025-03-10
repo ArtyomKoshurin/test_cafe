@@ -83,6 +83,7 @@ class OrderDetailView(View):
 
     def post(self, request, order_id):
         """Обновление статуса заказа и состава блюд."""
+
         status_form = OrderStatusForm(request.POST)
         items_form = OrderItemsForm(request.POST)
 

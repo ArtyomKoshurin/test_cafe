@@ -16,6 +16,7 @@ from api.constants import ORDER_STATUSES
 
 class OrderViewSet(viewsets.ModelViewSet):
     """Вьюсет для создания и просмотра заказа"""
+
     queryset = Order.objects.all()
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ("status")
