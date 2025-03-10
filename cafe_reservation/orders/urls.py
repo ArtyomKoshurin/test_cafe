@@ -5,7 +5,8 @@ from django.conf.urls.static import static
 from orders.views import (
     OrderCreateView,
     OrderListView,
-    OrderDetailView
+    OrderDetailView,
+    OrderDeleteView
 )
 
 
@@ -18,6 +19,11 @@ urlpatterns = [
         'orders/<int:order_id>/',
         OrderDetailView.as_view(),
         name='order_detail'
+    ),
+    path(
+        'orders/<int:order_id>/delete/',
+        OrderDeleteView.as_view(),
+        name='order_delete'
     ),
 ]
 

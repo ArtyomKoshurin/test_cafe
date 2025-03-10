@@ -76,3 +76,9 @@ class OrderCreateView(View):
                 return redirect("orders:orders_list")
 
         return render(request, self.template_name, {"form": form})
+
+
+class OrderDeleteView(View):
+    def post(self, request, order_id):
+        requests.delete(f"http://127.0.0.1:8000/api/orders/{order_id}/")
+        return redirect("orders:orders_list")
