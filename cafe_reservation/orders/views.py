@@ -115,7 +115,9 @@ class OrderCreateView(View):
             table_number = form.cleaned_data["table_number"]
             items = form.cleaned_data["items"]
 
-            items_data = [{"name": dish.name, "price": dish.price} for dish in items]
+            items_data = [
+                {"name": dish.name, "price": dish.price} for dish in items
+                ]
 
             response = requests.post(
                 "http://127.0.0.1:8000/api/orders/",
